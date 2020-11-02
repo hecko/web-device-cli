@@ -85,7 +85,7 @@ function connect() {
                                           handleNotifications);
         connected = true;
         window.term_.io.println('\r\n' + bleDevice.name + ' Connected.');
-        nusSendString('\r');
+        nusSendString('get serial\r');
         setConnButtonState(true);
     })
     .catch(error => {
@@ -172,13 +172,25 @@ This is a Web Command Line Interface via NUS (Nordic UART Service) using Web Blu
 
 function setupHterm() {
     const term = new hterm.Terminal();
+    var command_string = "";
 
     term.onTerminalReady = function() {
         const io = this.io.push();
+
         io.onVTKeystroke = (string) => {
+            command_string = command_string.concat(string);
+            console.log(command_string);
+            if (command_string.endsWith(";")) {
+                nusSendString(string);
+                command_string = "";
+            }
+        };
+
+        io.sendString = (string) => {
+            console.log(string);
             nusSendString(string);
         };
-        io.sendString = nusSendString;
+
         initContent(io);
         this.setCursorVisible(true);
         this.keyboard.characterEncoding = 'raw';
@@ -186,19 +198,16 @@ function setupHterm() {
     term.decorate(document.querySelector('#terminal'));
     term.installKeyboard();
 
-    term.contextMenu.setItems([
-        ['Terminal Reset', () => {term.reset(); initContent(window.term_.io);}],
-        ['Terminal Clear', () => {term.clearHome();}],
-        [hterm.ContextMenu.SEPARATOR],
-        ['GitHub', function() {
-            lib.f.openWindow('https://github.com/makerdiary/web-device-cli', '_blank');
-        }],
-    ]);
+    //term.contextMenu.setItems([
+    //    ['Terminal Reset', () => {term.reset(); initContent(window.term_.io);}],
+    //    ['Terminal Clear', () => {term.clearHome();}],
+    //    [hterm.ContextMenu.SEPARATOR],
+    //]);
 
     // Useful for console debugging.
     window.term_ = term;
 }
 
-window.onload = function() {
-    lib.init(setupHterm);
+window.onload = async function() {
+    await lib.init(setupHterm);
 };

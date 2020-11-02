@@ -1,7 +1,7 @@
-
 html {
   height: 100%;
 }
+
 body {
   position: absolute;
   height: 100%;
@@ -11,12 +11,14 @@ body {
   padding: 0px;
   background: #101010;
 }
+
 #terminal {
   display: block;
   position: fixed;
   top: 80px;
   bottom: 5%;
   width: 100%;
+  font-size: 13px;
 }
 
 #connection-panel {
@@ -27,9 +29,9 @@ body {
   position:fixed;
   background-color: rgb(51,105,232);
   border: none;
-  border-radius: 8px;
+  border-radius: 2px;
   width: 120px;
-  height: 50px;
+  height: 30px;
   color: white;
   text-align: center;
   text-decoration: none;

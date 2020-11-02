@@ -47,17 +47,17 @@ function connect() {
     })
     .then(device => {
         bleDevice = device;
-        console.log('Found ' + device.name);
-        console.log('Connecting to GATT Server...');
+        window.term_.io.println('Request to connect to device: ' + device.name);
+        window.term_.io.println('Connecting to the device...');
         bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
         return device.gatt.connect();
     })
     .then(server => {
-        console.log('Locate NUS service');
+        console.log('Locate service');
         return server.getPrimaryService(bleNusServiceUUID);
     }).then(service => {
         nusService = service;
-        console.log('Found NUS service: ' + service.uuid);
+        console.log('Found service: ' + service.uuid);
     })
     .then(() => {
         console.log('Locate RX characteristic');
@@ -85,7 +85,6 @@ function connect() {
                                           handleNotifications);
         connected = true;
         window.term_.io.println('\r\n' + bleDevice.name + ' Connected.');
-        nusSendString('get serial\r');
         setConnButtonState(true);
     })
     .catch(error => {
@@ -129,6 +128,7 @@ function handleNotifications(event) {
     for (let i = 0; i < value.byteLength; i++) {
         str += String.fromCharCode(value.getUint8(i));
     }
+    str += "\r\n";
     window.term_.io.print(str);
 }
 
@@ -160,13 +160,8 @@ function sendNextChunk(a) {
 
 function initContent(io) {
     io.println("\r\n\
-Welcome to Web Device CLI V0.1.0 (03/19/2019)\r\n\
-Copyright (C) 2019  makerdiary.\r\n\
+This is a Web Command Line Interface for Bluetooth devices.\r\n\
 \r\n\
-This is a Web Command Line Interface via NUS (Nordic UART Service) using Web Bluetooth.\r\n\
-\r\n\
-  * Source: https://github.com/makerdiary/web-device-cli\r\n\
-  * Live:   https://makerdiary.github.io/web-device-cli\r\n\
 ");
 }
 
@@ -178,18 +173,20 @@ function setupHterm() {
         const io = this.io.push();
 
         io.onVTKeystroke = (string) => {
+            window.term_.io.print(string);
             command_string = command_string.concat(string);
             console.log(command_string);
-            if (command_string.endsWith(";")) {
-                nusSendString(string);
+            if (command_string.endsWith("\r")) {
+                nusSendString(command_string);
                 command_string = "";
+                window.term_.io.print("\r\n");
             }
         };
 
-        io.sendString = (string) => {
-            console.log(string);
-            nusSendString(string);
-        };
+        //io.sendString = (string) => {
+        //    console.log(string);
+        //    nusSendString(string);
+        //};
 
         initContent(io);
         this.setCursorVisible(true);

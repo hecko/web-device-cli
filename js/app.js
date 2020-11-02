@@ -46,7 +46,7 @@ function connect() {
         acceptAllDevices: true
     })
     .then(device => {
-        bleDevice = device; 
+        bleDevice = device;
         console.log('Found ' + device.name);
         console.log('Connecting to GATT Server...');
         bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
@@ -123,7 +123,7 @@ function onDisconnected() {
 function handleNotifications(event) {
     console.log('notification');
     let value = event.target.value;
-    // Convert raw data bytes to character values and use these to 
+    // Convert raw data bytes to character values and use these to
     // construct a string.
     let str = "";
     for (let i = 0; i < value.byteLength; i++) {
@@ -134,7 +134,7 @@ function handleNotifications(event) {
 
 function nusSendString(s) {
     if(bleDevice && bleDevice.gatt.connected) {
-        console.log("send: " + s);
+        console.log("sent: " + s);
         let val_arr = new Uint8Array(s.length)
         for (let i = 0; i < s.length; i++) {
             let val = s[i].charCodeAt(0);
